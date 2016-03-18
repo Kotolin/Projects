@@ -1,0 +1,49 @@
+#include <iostream>
+#include <vector>
+#include <ctime>
+#include <cstdlib>
+#include <cmath>
+using namespace std;
+const int Number_of_layers = 2;
+const int Input_layer_count = 1;
+const int Output_layer_count = 1,
+const int  Shadow_layer_count = 2;
+long double f(long double z) {
+    return z;
+}
+long double df(long double z){
+    return 1;
+}
+class Neuron
+{
+public:
+    long double cost, dis;
+    long double weight[1];
+};
+int main() {
+    srand(time(0));
+    vector<Neuron> field(3);
+    field[0].weight[0] = rand() % 2 - 0.5;
+    field[1].weight[0] = rand() % 2 - 0.5;
+    field[2].weight[0] = rand() % 2 - 0.5;
+    long double in, out, t;
+    for (int i = 1; i < 2000; i++) {
+        in = i;
+        out = in * 2;
+        field[0].cost = in;
+        field[1].cost = f(field[0].cost * field[0].weight[0]);
+        field[2].cost = field[1].cost * field[1].weight[0];
+        t = field[2].cost;
+        field[2].dis = (out - t) / field[1].cost;
+        field[1].dis = field[2].dis *  field[1].weight[0] / field[0].cost;
+        field[0].weight[0] += 0.7 * field[1].dis;
+        field[1].weight[0] += 0.7 * field[2].dis;
+    };
+    cin >> in;
+    field[0].cost = in;
+    field[1].cost = f(field[0].cost * field[0].weight[0]);
+    field[2].cost = field[1].cost * field[1].weight[0];
+    t = field[2].cost;
+    cout << t;
+    return 0;
+}
