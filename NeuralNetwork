@@ -4,46 +4,92 @@
 #include <cstdlib>
 #include <cmath>
 using namespace std;
-const int Number_of_layers = 2;
-const int Input_layer_count = 1;
-const int Output_layer_count = 1,
-const int  Shadow_layer_count = 2;
-long double f(long double z) {
-    return z;
+const int sln = 2;
+const int slnn = 2;
+const int ilnn = 2;
+const int  olnn = 2;
+long double fp(long double z) {
+    return 1 - z*z;
 }
-long double df(long double z){
-    return 1;
+long double f(long double z){
+    return (2 /(1 + exp(-2 * z)) - 1);
+}
+long double m(long double z){
+    if (z >= 0){return 1/(z+1);}else{return 1 / (z - 1);}
+}
+long double mr(long double z){
+    if(z > 0){return (1/z) - 1;}else { return (1/z) + 1;}
 }
 class Neuron
 {
 public:
-    long double cost, dis;
-    long double weight[1];
+    int layer, place;
+    long double content, dif;
+    vector<long double> weight;
+    void init(int l, int p){
+        layer = l;
+        place = p;
+        content = 1.0;
+        if(l == (sln + 2)){}else{if(l == sln + 1){
+            for(int i = 0; i < olnn; i++){
+                weight.push_back((rand() % 1000 + 1) / 1000.0 - 0.5);
+            };
+        }else{
+            for(int i = 0; i < slnn; i ++){
+                weight.push_back((rand() % 1000 + 1) / 1000.0d - 0.5);
+            };
+        };
+        };
+    };
 };
+ostream& operator<<(ostream& os,const Neuron& neuron)
+{
+    os << "[";
+    for (int i = 0; i < neuron.weight.size() - 1; i++)
+    {
+        os << neuron.weight[i];
+        os << ", ";
+    }
+    os << neuron.weight[neuron.weight.size() - 1];
+    os << "]";
+    return os;
+}
+class Neural_network {
+public:
+    vector<Neuron> content[sln + 2];
+    void init(){
+        for(int i = 0; i < ilnn; i ++){
+            content[0].push_back(Neuron());
+            content[0][i].init(1, i);
+        };
+        for(int j = 2; j < sln + 2; j ++){
+            for(int i = 0; i <= slnn; i ++){
+                content[j - 1].push_back(Neuron());
+                content[j -1][i].init(j, i);
+            };
+        };
+        for(int i = 0; i <= olnn; i++){
+            content[sln + 1].push_back(Neuron());
+            content[sln + 1][i].init(sln + 2, i);
+        };
+    };
+};
+ostream& operator<<(ostream& os,const Neural_network& net)
+{
+    for (int i = 0; i < sln + 2; i++)
+    {
+        for (int j = 0; j < net.content[i].size(); j++)
+        {
+            os << net.content[i][j] << endl;
+        }
+    os << endl;
+    }
+    return os;
+}
 int main() {
     srand(time(0));
-    vector<Neuron> field(3);
-    field[0].weight[0] = rand() % 2 - 0.5;
-    field[1].weight[0] = rand() % 2 - 0.5;
-    field[2].weight[0] = rand() % 2 - 0.5;
-    long double in, out, t;
-    for (int i = 1; i < 2000; i++) {
-        in = i;
-        out = in * 2;
-        field[0].cost = in;
-        field[1].cost = f(field[0].cost * field[0].weight[0]);
-        field[2].cost = field[1].cost * field[1].weight[0];
-        t = field[2].cost;
-        field[2].dis = (out - t) / field[1].cost;
-        field[1].dis = field[2].dis *  field[1].weight[0] / field[0].cost;
-        field[0].weight[0] += 0.7 * field[1].dis;
-        field[1].weight[0] += 0.7 * field[2].dis;
-    };
-    cin >> in;
-    field[0].cost = in;
-    field[1].cost = f(field[0].cost * field[0].weight[0]);
-    field[2].cost = field[1].cost * field[1].weight[0];
-    t = field[2].cost;
-    cout << t;
+    Neural_network N;
+    N.init();
+    cout << N;
     return 0;
 }
